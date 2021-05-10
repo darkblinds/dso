@@ -1,13 +1,15 @@
 from controller.aluguel_controller import AluguelController
 from controller.car_controller import CarController
 from controller.user_controller import UserController
+from dao import get
+from model.usuario import User
 from view.general_view import GeneralView
 
 
 class MainController:
 
     def __init__(self):
-        self.__usuarios = []
+        self.__usuarios = [User.fromJson(usuario) for usuario in get('usuarios')]
         self.__carros = []
         self.__alugueis = []
 

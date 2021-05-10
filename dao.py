@@ -1,37 +1,32 @@
-import pickle
-from abc import ABC
+import sqlite3
+import pandas as pd
 
 
-class DAO(ABC):
-    def __init__(self, datasource=''):
-        self.__datasource = datasource
-        self.__cache= {}
-        try:
-            self.__load()
-        except FileNotFoundError:
-            self.dump()
+def insert(table, dict):
+    dataframe = pd.DataFrame(dict, index=[0])
+    data = sqlite3.connect('banco.db')
+    dataframe.to_sql(con=data, name=table, if_exists='append', index=False)
 
-    def dump(self):
-        pickle.dump(self.__cache, open(self.__datasource, 'wb'))
 
-    def __load(self):
-        self.__cache = pickle.load(open(self.__datasource, 'rb'))
+def get(table):
+    try:
+        cnx = sqlite3.connect('banco.db')
+        df = pd.read_sql_query(f"SELECT * FROM {table}", cnx)
+        data = df.T.to_dict().values()
+        return data
+    except:
+        return []
 
-    def add(self, key, obj):
-        self.__cache[key] = obj
-        self.__dump()
 
-    def get(self,key):
-        try:
-            return self.__cache[key]
-        except KeyError:
-            pass
+def delete(table, id):
+    sqliteConnection = sqlite3.connect('banco.db')
+    cursor = sqliteConnection.cursor()
+    sql_delete_query = f"""DELETE from {table} where id = {id}"""
+    cursor.execute(sql_delete_query)
+    sqliteConnection.commit()
+    cursor.close()
 
-    def remove(self,key):
-        try:
-            self.__cache.pop(key)
-            self.__dump()
-        except KeyError:
-            pass
-    def get_all(self):
-        return self.__cache.values()
+
+def update(table, dict, id):
+    delete(table, id)
+    insert(table, dict)

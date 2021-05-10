@@ -1,3 +1,4 @@
+from dao import insert, delete, update
 from model.usuario import User
 from view.general_view import GeneralView
 from view.usuario_view import UserView
@@ -27,6 +28,8 @@ class UserController:
             id = len(self.__usuarios)
             user = User(id, nome, idade, telefone)
             self.__usuarios.append(user)
+            table, dict = user.toDict()
+            insert(table, dict)
         except:
             GeneralView.message('Não foi possível cadastrar o usuário, tente novamente!')
 
@@ -45,7 +48,8 @@ class UserController:
                 self.editarUsuario(index, usuario)
             elif botao == 'Deletar':
                 self.deletarUsuario(index)
-        except:
+        except Exception as e:
+            print(e)
             GeneralView.message('Não foi possível realizar a sua ação')
 
     def editarUsuario(self, index, user):
@@ -56,6 +60,9 @@ class UserController:
         user.nome = nome
         user.idade = idade
         user.telefone = telefone
+        table, dict = user.toDict()
+        update(table, dict, user.id)
 
     def deletarUsuario(self, index):
         del self.__usuarios[index]
+        delete('usuarios', index)

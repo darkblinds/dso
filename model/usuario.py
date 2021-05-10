@@ -37,3 +37,15 @@ class User:
     @telefone.setter
     def telefone(self, telefone):
         self.__telefone = telefone
+
+    def toDict(self):
+        return 'usuarios', {
+            'id': self.__id,
+            'nome': self.__nome,
+            'idade': self.__idade,
+            'telefone': self.__telefone
+        }
+
+    @staticmethod
+    def fromJson(dict):
+        return User(dict['id'], dict['nome'], dict['idade'], dict['telefone'])
